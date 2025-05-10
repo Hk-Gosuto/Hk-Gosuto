@@ -25,7 +25,7 @@ jobs:
         uses: LuciNyan/pixel-profile/action@main
         with:
           outputs: |
-            dist/github-stats?username=Hk-Gosuto&screen_effect=true&include_all_commits=true&pixelate_avatar=true&background=linear-gradient%280deg%2C+%23e83b3bFF+0%25%2C+%23fbff86FF+100%25%29+&color=%234d65b4FF
+            dist/github-stats?username=Hk-Gosuto&background=linear-gradient%280deg%2C+%23e83b3bFF+0%25%2C+%23fbff86FF+100%25%29+&color=%234d65b4FF
             dist/github-stats-dark?username=Hk-Gosuto&theme=crt
 
       # push the content of <build_dir> to a branch
