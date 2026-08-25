@@ -1,17 +1,19 @@
 name: generate-and-upload-card
 
 on:
-  # run automatically every 24 hours
+  # Run automatically once a day.
   schedule:
-    - cron: "0 */24 * * *"
+    - cron: "0 0 * * *"
 
-  # allows to manually run the job at any time
+  # Allow the workflow to be run manually.
   workflow_dispatch:
 
-  # run on every push on the master branch
+  # Regenerate the cards whenever this workflow changes on the default branch.
   push:
     branches:
-    - master
+      - main
+    paths:
+      - ".github/workflows/main.yml"
 
 jobs:
   generate:
@@ -21,16 +23,25 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: generate github stats card
-        uses: LuciNyan/pixel-profile/action@main
+      - name: Check pixel profile token
+        env:
+          PIXEL_PROFILE_TOKEN: ${{ secrets.PIXEL_PROFILE_TOKEN }}
+        run: |
+          if [ -z "$PIXEL_PROFILE_TOKEN" ]; then
+            echo "::error::Missing PIXEL_PROFILE_TOKEN repository secret. The default GITHUB_TOKEN cannot read stargazers across repositories."
+            exit 1
+          fi
+
+      - name: Generate GitHub stats cards
+        # Pin the action because this step receives a personal access token.
+        uses: LuciNyan/pixel-profile/action@7a7937a63421dd6eba82aaae31f73e85df8d9f94
         with:
+          github_token: ${{ secrets.PIXEL_PROFILE_TOKEN }}
           outputs: |
             dist/github-stats?username=Hk-Gosuto&background=linear-gradient%280deg%2C+%23e83b3bFF+0%25%2C+%23fbff86FF+100%25%29+&color=%234d65b4FF
             dist/github-stats-dark?username=Hk-Gosuto&theme=crt
 
-      # push the content of <build_dir> to a branch
-      # the content will be available at https://raw.githubusercontent.com/<github_user>/<repository>/<target_branch>/<file> , or as github page
-      - name: push github-contribution-grid-snake.svg to the output branch
+      - name: Push cards to the output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
           target_branch: output
